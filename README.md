@@ -1,5 +1,5 @@
 # tiny_distributed_tf
-tiny_distributed_tf is a tiny implementaion of distributed tensorflow
+tiny_distributed_tf is a tiny implementaion of distributed tensorflow. Regression of airquality's data. 
 
 # Dependencies
 - tensorflow (>=0.10)
