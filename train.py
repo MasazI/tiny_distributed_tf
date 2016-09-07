@@ -70,6 +70,11 @@ def main(_):
                              job_name=FLAGS.job_name,
                              task_index=FLAGS.task_index)
 
+    # training data
+    filename_queue = tf.train.string_input_producer(["output/data/airquality.csv"])
+    datas, targets = dataset.mini_batch(filename_queue, BATCH_SIZE)
+
+
     if DFLAGS.job_name == "ps":
         server.join()
     elif DFLAGS.job_name == "worker":
@@ -77,12 +82,9 @@ def main(_):
         with tf.device(tf.train.replica_device_setter(
                 worker_device="/job:worker/task:%d" % DFLAGS.task_index,
                 cluster=cluster)):
+
             # step num of global
             global_step = tf.Variable(0, trainable=False)
-
-            # training data
-            filename_queue = tf.train.string_input_producer(["output/data/airquality.csv"])
-            datas, targets = dataset.mini_batch(filename_queue, BATCH_SIZE)
 
             # inference
             logits = model.inference(datas)

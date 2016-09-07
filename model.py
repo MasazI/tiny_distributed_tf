@@ -24,22 +24,23 @@ def weight_variable(shape):
     initial = tf.truncated_normal(shape, stddev=0.1)
     return tf.Variable(initial)
 
-def _variable_with_weight_decay(name, shape, stddev, wd):
+def _variable_with_weight_decay(name, shape, stddev, wd, device_name):
     '''
     重み減衰を利用した変数の初期化
     '''
-    var = _variable_on_cpu(name, shape, tf.truncated_normal_initializer(stddev=stddev))
+    var = _variable_on_cpu(name, shape, tf.truncated_normal_initializer(stddev=stddev), device_name)
     if wd:
         weight_decay = tf.mul(tf.nn.l2_loss(var), wd, name='weight_loss')
         tf.add_to_collection('losses', weight_decay)
     return var
 
-def _variable_on_cpu(name, shape, initializer):
+def _variable_on_cpu(name, shape, initializer, device_name):
     '''
     メモリに変数をストアする
     '''
-    var = tf.get_variable(name, shape, initializer=initializer)
-    return var
+    with tf.device(device_name):
+        var = tf.get_variable(name, shape, initializer=initializer)
+        return var
 
 
 def _activation_summary(x):
@@ -61,9 +62,10 @@ def inference(inputs):
             'weights',
             shape=[5, 4],
             stddev=0.04,
-            wd=0.004
+            wd=0.004,
+            device_name="/job:ps/task:0"
         )
-        biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.1))
+        biases = _variable_on_cpu('biases', [4], tf.constant_initializer(0.1), device_name="/job:ps/task:0")
         local1 = tf.nn.relu(tf.add(tf.matmul(inputs, weights), biases))
         _activation_summary(local1)
 
@@ -73,9 +75,10 @@ def inference(inputs):
             'weights',
             [4, NUM_CLASSES],
             stddev=0.04,
-            wd=0.0
+            wd=0.0,
+            device_name="/job:ps/task:1"
         )
-        biases = _variable_on_cpu('biases', [NUM_CLASSES], tf.constant_initializer(0.0))
+        biases = _variable_on_cpu('biases', [NUM_CLASSES], tf.constant_initializer(0.0), device_name="/job:ps/task:1")
         linear = tf.nn.xw_plus_b(local1, weights, biases, name=scope.name)
         _activation_summary(linear)
 
