@@ -28,18 +28,20 @@ def main_correct():
 
 def main_correct2():
     '''
-    correct: get handle to default graph
+    correct: get handle to default graph, further more session definition using Graph.
     '''
     g1 = tf.get_default_graph()
     g2 = tf.Graph()
+
+    sess_g1 = tf.Session(graph=g1)
+    sess_g2 = tf.Session(graph=g2)
+
     with g1.as_default():
         in_graph_g1 = tf.mul(2,3)
-        sess_g1 = tf.Session()
         g1_val = sess_g1.run(in_graph_g1)
 
     with g2.as_default():
         in_graph_g2 = tf.add(2,3)
-        sess_g2 = tf.Session()
         g2_val = sess_g2.run(in_graph_g2)
 
     sess_g1.close()
@@ -82,3 +84,4 @@ def main_incorrect():
 if __name__ == '__main__':
     main_incorrect()
     main_correct()
+    main_correct2()
