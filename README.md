@@ -33,7 +33,7 @@ python train.py --ps_hosts=localhost:2222,localhost:2223 --worker_hosts=localhos
 This repository has fundamental codes of TensorFlow.
 It might be useful to create distributed models.
 
-- Scope, Sessin, Variables, Graph, Summary
+- Scope, Session, Variables, Graph, Summary
 - Linear Regression
 
 ---
